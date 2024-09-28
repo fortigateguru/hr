@@ -2,6 +2,18 @@ import streamlit as st
 from sentence_transformers import SentenceTransformer, util
 import torch
 
+# Add an image at the top
+st.image("https://github.com/fortigateguru/hr/blob/main/ai-generated-8772394_640.png", caption="Best Match HR App", use_column_width=True)
+
+# Title
+st.title("Best Match HR App")
+
+# Subheader and job description input
+st.subheader("Enter job description")
+job_description = st.text_area("Job Description", 
+                               "Looking for a data scientist, junior level, skilled in LLM and Retrieval-Augmented Generation (RAG) techniques.")
+
+
 # Step 1: Prepare the CVs (same as before)
 cv_texts = [
     "Data scientist with experience in Python, machine learning, and data analysis.",
