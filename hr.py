@@ -3,7 +3,7 @@ from sentence_transformers import SentenceTransformer, util
 import torch
 
 # Add an image from GitHub (as per your provided link)
-st.image("https://github.com/fortigateguru/hr/blob/main/ai-generated-8772394_640.png?raw=true", 
+st.image("https://github.com/fortigateguru/hr/blob/main/hands-1923185_640.png?raw=true", 
          caption="Best Match HR App", use_column_width=True)
 
 # Title
