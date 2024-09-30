@@ -1,4 +1,7 @@
+
 import streamlit as st
+from PyPDF2 import PdfReader
+import docx
 from sentence_transformers import SentenceTransformer, util
 import torch
 
@@ -6,52 +9,73 @@ import torch
 st.image("https://github.com/fortigateguru/hr/blob/main/hands-1923185_640.png?raw=true", 
          caption="Best Match HR App", use_column_width=True)
 
-# Title
-st.title("Best Match HR App")
+# Function to parse a PDF file
+def parse_pdf(file):
+    pdf_reader = PdfReader(file)
+    text = ""
+    for page in pdf_reader.pages:
+        text += page.extract_text()
+    return text
 
-# Subheader and job description input
-st.subheader("Enter job description")
+# Function to parse a DOCX file
+def parse_docx(file):
+    doc = docx.Document(file)
+    text = ""
+    for para in doc.paragraphs:
+        text += para.text
+    return text
 
-# Use a unique key for the text area widget
-job_description = st.text_area("Job Description", 
-                               "Looking for a data scientist, junior level, skilled in LLM and Retrieval-Augmented Generation (RAG) techniques.",
-                               key="job_description_input")
+# Function to handle file upload and parse based on type
+def parse_uploaded_file(uploaded_file):
+    if uploaded_file.type == "application/pdf":
+        return parse_pdf(uploaded_file)
+    elif uploaded_file.type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+        return parse_docx(uploaded_file)
+    else:
+        st.warning("Unsupported file type. Please upload a PDF or DOCX file.")
+        return None
 
-# Load the BERT-based model for embeddings
+# App title and description
+st.title("Best Match HR App with Real-Time CV Parsing")
+
+# Job description input
+st.subheader("Enter Job Description")
+job_description = st.text_area("Job Description", "Looking for a data scientist with experience in Python, machine learning, and deep learning.")
+
+# Upload CV files
+st.subheader("Upload CVs (PDF or DOCX)")
+uploaded_files = st.file_uploader("Upload CV files", type=["pdf", "docx"], accept_multiple_files=True)
+
+# Load the BERT model
 model = SentenceTransformer('paraphrase-MiniLM-L6-v2')
 
-# List of sample CVs
-cv_texts = [
-    "Data scientist with experience in Python, machine learning, and data analysis.",
-    "Experienced software developer skilled in Java, Python, and AWS cloud services.",
-    "Graphic designer proficient in Adobe Photoshop, Illustrator, and digital art.",
-    "Machine learning engineer with expertise in Python, deep learning, and TensorFlow.",
-    "Project manager with experience in agile methodologies, project planning, and Jira.",
-    "System administrator experienced with Linux, networking, and cloud services.",
-    "Frontend developer skilled in HTML, CSS, JavaScript, and React.",
-    "Backend developer with expertise in Node.js, Express, and database management.",
-    "Cybersecurity analyst with knowledge of network security, firewalls, and ethical hacking.",
-    "Business analyst with experience in data modeling, SQL, and business intelligence tools."
-]
+# Process the uploaded files
+cv_texts = []
+if uploaded_files:
+    for uploaded_file in uploaded_files:
+        parsed_text = parse_uploaded_file(uploaded_file)
+        if parsed_text:
+            cv_texts.append(parsed_text)
+            st.write(f"Extracted text from {uploaded_file.name}:", parsed_text[:500])  # Displaying only first 500 characters
 
-# Button to trigger the match-making process (with unique key)
-if st.button("Find Best Match", key="find_best_match_button"):
+# Matching process
+if cv_texts and st.button("Find Best Match"):
     # Encode the job description
     job_embedding = model.encode(job_description, convert_to_tensor=True)
-
+    
     # Generate embeddings for the CVs
     cv_embeddings = model.encode(cv_texts, convert_to_tensor=True)
-
+    
     # Find similarity between job description and CVs
     similarity_scores = util.pytorch_cos_sim(job_embedding, cv_embeddings)
-
+    
     # Sort CVs by similarity
     sorted_indices = torch.argsort(similarity_scores, descending=True).tolist()[0]
-
+    
     # Display the top matches
     st.subheader("Top Matches")
-    
     for idx in sorted_indices:
-        st.write(f"CV {idx+1}: {cv_texts[idx]}")
+        st.write(f"CV {idx+1} (from {uploaded_files[idx].name}):")
         st.write(f"Similarity Score: {similarity_scores[0][idx].item():.4f}")
         st.write("---")
+
