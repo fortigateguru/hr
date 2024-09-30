@@ -43,7 +43,7 @@ st.subheader("הכנס תיאור משרה")
 job_description = st.text_area("Job Description", "Looking for a data scientist with experience in Python, machine learning, and deep learning.")
 
 # Upload CV files
-st.subheader("Upload CVs (PDF or DOCX)")
+st.subheader("העלה קורות חיים (PDF or DOCX)")
 uploaded_files = st.file_uploader("Upload CV files", type=["pdf", "docx"], accept_multiple_files=True)
 
 # Load the BERT model
@@ -59,7 +59,7 @@ if uploaded_files:
             st.write(f"Extracted text from {uploaded_file.name}:", parsed_text[:500])  # Displaying only first 500 characters
 
 # Matching process
-if cv_texts and st.button("Find Best Match"):
+if cv_texts and st.button("מצא את המועמד הכי מתאים"):
     # Encode the job description
     job_embedding = model.encode(job_description, convert_to_tensor=True)
     
