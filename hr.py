@@ -39,7 +39,7 @@ def parse_uploaded_file(uploaded_file):
 st.title("Best Match HR App with Real-Time CV Parsing")
 
 # Job description input
-st.subheader("Enter Job Description")
+st.subheader("הכנס תיאור משרה")
 job_description = st.text_area("Job Description", "Looking for a data scientist with experience in Python, machine learning, and deep learning.")
 
 # Upload CV files
