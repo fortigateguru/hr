@@ -59,7 +59,7 @@ if uploaded_files:
             st.write(f"Extracted text from {uploaded_file.name}:", parsed_text[:500])  # Displaying only first 500 characters
 
 # Matching process
-if cv_texts and st.button(" Best Match "):
+if cv_texts and st.button(" המועמד המתאים ביותר  "):
     # Encode the job description
     job_embedding = model.encode(job_description, convert_to_tensor=True)
     
