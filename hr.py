@@ -1,9 +1,43 @@
 import streamlit as st
+import sqlite3
+from datetime import datetime
 
-# Set page configuration for Hebrew RTL and title
+# Initialize SQLite database
+def init_db():
+    conn = sqlite3.connect('visit_counter.db')
+    c = conn.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS visits 
+                 (id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp TEXT)''')
+    conn.commit()
+    conn.close()
+
+# Increment visit count
+def increment_visit():
+    conn = sqlite3.connect('visit_counter.db')
+    c = conn.cursor()
+    c.execute("INSERT INTO visits (timestamp) VALUES (?)", (datetime.now().isoformat(),))
+    conn.commit()
+    conn.close()
+
+# Get total visits
+def get_visit_count():
+    conn = sqlite3.connect('visit_counter.db')
+    c = conn.cursor()
+    c.execute("SELECT COUNT(*) FROM visits")
+    count = c.fetchone()[0]
+    conn.close()
+    return count
+
+# Initialize database
+init_db()
+
+# Increment visit counter on page load
+increment_visit()
+
+# Set page configuration
 st.set_page_config(page_title="תיקי בית ספר - המלאי מלא", layout="centered")
 
-# HTML content for the landing page
+# HTML content
 html_content = """
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
@@ -31,5 +65,9 @@ html_content = """
 </html>
 """
 
-# Render the HTML content in Streamlit
+# Render HTML
 st.components.v1.html(html_content, height=800, scrolling=True)
+
+# Display visit count (optional, for admin/testing)
+if st.checkbox("הצג ספירת מבקרים (למנהלים)"):
+    st.write(f"מספר המבקרים הכולל: {get_visit_count()}")
